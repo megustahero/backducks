@@ -23,7 +23,8 @@
             $e = array(
                 "id" => $id,
                 "parcel_number" => $parcel_number,
-                "type" => $delivery_day,
+                "type" => $type,
+                "delivery_day" => $delivery_day,
                 "insert_date" => $insert_date
             );
             array_push($detourArr["body"], $e);
@@ -33,7 +34,7 @@
     else{
         http_response_code(404);
         echo json_encode(
-            array("message" => "No record found.")
+            array("message" => "No detour found.")
         );
     }
 ?>
