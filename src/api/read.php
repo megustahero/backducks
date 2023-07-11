@@ -9,8 +9,8 @@
     $database = new Database();
     $db = $database->getConnection();
     $items = new Detour($db);
-    $alldet = $items->getDetours();
-    $itemCount = $alldet->rowCount();
+    $stmt = $items->getDetours();
+    $itemCount = $stmt->rowCount();
 
     echo json_encode($itemCount);
 
@@ -18,7 +18,7 @@
         $detourArr = array();
         $detourArr["body"] = array();
         $detourArr["itemCount"] = $itemCount;
-        while ($row = $alldet->fetch(PDO::FETCH_ASSOC)){
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
             extract($row);
             $e = array(
                 "id" => $id,

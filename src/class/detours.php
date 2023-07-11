@@ -1,19 +1,24 @@
 <?php
     class Detour{
+        
         //Connection to my db
         private $conn;
+        
         //Define the table where detours are stored
         private $db_table = "detour";
+        
         //Columns in the table
         public $id;
         public $parcel_number;
         public $type;
         public $delivery_day;
         public $insert_date;
+        
         // DB connection
         public function __construct($db){
             $this->conn = $db;
         }
+        
         // GET every detour
         public function getDetours(){
             $sqlQuery = "SELECT id, parcel_number, type, delivery_day, insert_date FROM " . $this->db_table . "";
@@ -21,6 +26,7 @@
             $stmt->execute();
             return $stmt;
         }
+        
         // CREATE a detour
         public function createDetour(){
             $sqlQuery = "INSERT INTO
@@ -50,6 +56,29 @@
         }
 
         // READ a detour
+        public function getSingleDetour(){
+            $sqlQuery = "SELECT
+                            id,
+                            parcel_number,
+                            type,
+                            delivery_day
+                            insert_date
+                        FROM
+                            ". $this->db_table ."
+                        WHERE
+                            id = ?
+                        LIMIT 0,1";
+
+            $stmt = $this->conn->prepare($sqlQuery);
+            $stmt->bindParam(1, $this->id);
+            $stmt->execute();
+            $dataRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $this->parcel_number = $dataRow['parcel_number'];
+            $this->type = $dataRow['type'];
+            $this->delivery_day = $dataRow['delivery_day'];
+            $this->insert_date = $dataRow['insert_date'];
+        }
+
         
     }
-?>
