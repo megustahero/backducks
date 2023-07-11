@@ -39,7 +39,7 @@
             
             $stmt = $this->conn->prepare($sqlQuery);
 
-            // satanize
+            // satanize (sanitize)
             $this->parcel_number=htmlspecialchars(strip_tags($this->parcel_number));
             $this->type=htmlspecialchars(strip_tags($this->type));
             $this->delivery_day=htmlspecialchars(strip_tags($this->delivery_day));
@@ -80,5 +80,49 @@
             $this->insert_date = $dataRow['insert_date'];
         }
 
-        
+        // UPDATE a detour
+        public function updateDetour(){
+            $sqlQuery = "UPDATE
+                        ". $this->db_table ."
+                        SET
+                            parcel_number = :parcel_number,
+                            type = :type,
+                            delivery_day = :delivery_day,
+                            insert_date = now()
+                        WHERE
+                            id = :id";
+            $stmt = $this->conn->prepare($sqlQuery);
+
+            // satanize (sanitize)
+            $this->id=htmlspecialchars(strip_tags($this->id));
+            $this->parcel_number=htmlspecialchars(strip_tags($this->parcel_number));
+            $this->type=htmlspecialchars(strip_tags($this->type));
+            $this->delivery_day=htmlspecialchars(strip_tags($this->delivery_day));
+
+            // binding
+            $stmt->bindParam(":id", $this->id);
+            $stmt->bindParam(":parcel_number", $this->parcel_number);
+            $stmt->bindParam(":type", $this->type);
+            $stmt->bindParam(":deliver_day", $this->delivery_day);
+
+            if($stmt->execute()){
+                return true;
+            }
+            return false;
+        }
+
+        // DELETE a detour
+        public function deleteDetour(){
+            $sqlQuery = "DELETE FROM " .$this->db_table . " WHERE id = ?";
+            $stmt = $this->conn->prepare($sqlQuery);
+
+            $this->id=htmlspecialchars(strip_tags($this->id));
+
+            $stmt->bindParam(1, $this->id);
+
+            if($stmt->execute()){
+                return true;
+            }
+            return false;
+        }
     }
