@@ -1,7 +1,7 @@
 <?php
 
 class Database {
-    private $host = "127.0.0.1";
+    private $host = "db";
     private $database_name = "backducks";
     private $username = "backducks";
     private $password = "unholy-trinity-bear";
@@ -10,7 +10,7 @@ class Database {
         $this->conn = null;
         try{
             $this->conn = new PDO("pgsql:host=" . $this->host . ";dbname=" . $this->database_name, $this->username, $this->password);
-            $this->conn->exec("set names utf8");
+            $this->conn->exec("SET NAMES 'UTF8'");
         }catch(PDOException $exception){
             echo "ERROR: Could not connect. " . $exception->getMessage();
         }
