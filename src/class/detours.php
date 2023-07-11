@@ -61,13 +61,13 @@
                             id,
                             parcel_number,
                             type,
-                            delivery_day
+                            delivery_day,
                             insert_date
                         FROM
                             ". $this->db_table ."
                         WHERE
                             id = ?
-                        LIMIT 0,1";
+                        LIMIT 1";
 
             $stmt = $this->conn->prepare($sqlQuery);
             $stmt->bindParam(1, $this->id);
