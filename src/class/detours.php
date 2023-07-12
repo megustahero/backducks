@@ -38,8 +38,6 @@
                             :delivery_day,
                             now()
                             )";
-            
-            #print($sqlQuery::string);
 
             $stmt = $this->conn->prepare($sqlQuery);
             
