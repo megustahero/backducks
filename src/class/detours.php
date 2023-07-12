@@ -31,14 +31,18 @@
         public function createDetour(){
             $sqlQuery = "INSERT INTO
                         ". $this->db_table ."
+                        (parcel_number, type, delivery_day, insert_date)
                         VALUES (
-                            parcel_number = :parcel_number,
-                            type = :type,
-                            delivery_day = :delivery_day,
-                            insert_date = now())";
+                            :parcel_number,
+                            :type,
+                            :delivery_day,
+                            now()
+                            )";
             
-            $stmt = $this->conn->prepare($sqlQuery);
+            #print($sqlQuery::string);
 
+            $stmt = $this->conn->prepare($sqlQuery);
+            
             // satanize (sanitize)
             $this->parcel_number=htmlspecialchars(strip_tags($this->parcel_number));
             $this->type=htmlspecialchars(strip_tags($this->type));
@@ -103,7 +107,7 @@
             $stmt->bindParam(":id", $this->id);
             $stmt->bindParam(":parcel_number", $this->parcel_number);
             $stmt->bindParam(":type", $this->type);
-            $stmt->bindParam(":deliver_day", $this->delivery_day);
+            $stmt->bindParam(":delivery_day", $this->delivery_day);
 
             if($stmt->execute()){
                 return true;
