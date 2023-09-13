@@ -21,13 +21,13 @@
         
         // GET every detour
         public function getDetours(){
-            $sqlQuery = "SELECT id, parcel_number, type, delivery_day, insert_date FROM " . $this->db_table . "";
+            $sqlQuery = "SELECT id, parcel_number, type, delivery_day, insert_date FROM " . $this->db_table . " ORDER BY insert_date DESC";
             $stmt = $this->conn->prepare($sqlQuery);
             $stmt->execute();
             return $stmt;
         }
         
-        // CREATE a detour
+        // CREATE a detour, alias POST method
         public function createDetour(){
             $sqlQuery = "INSERT INTO
                         ". $this->db_table ."
@@ -58,7 +58,7 @@
         }
 
         // READ a detour
-        public function getSingleDetour(){
+        public function getLatestDetour(){
             $sqlQuery = "SELECT
                             id,
                             parcel_number,
@@ -68,11 +68,12 @@
                         FROM
                             ". $this->db_table ."
                         WHERE
-                            id = ?
+                            parcel_number = ?
+                        ORDER BY insert_date DESC
                         LIMIT 1";
 
             $stmt = $this->conn->prepare($sqlQuery);
-            $stmt->bindParam(1, $this->id);
+            $stmt->bindParam(1, $this->parcel_number);
             $stmt->execute();
             $dataRow = $stmt->fetch(PDO::FETCH_ASSOC);
 

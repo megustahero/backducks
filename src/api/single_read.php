@@ -2,7 +2,7 @@
     
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
-    header("Access-Control-Allow-Methods: POST");
+    header("Access-Control-Allow-Methods: GET");
     header("Access-Control-Max-Age: 3600");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
@@ -11,9 +11,9 @@
     $database = new Database();
     $db = $database->getConnection();
     $item = new Detour($db);
-    $item->id = isset($_GET['id']) ? $_GET['id'] : die();
+    $item->parcel_number = isset($_GET['parcel_number']) ? $_GET['parcel_number'] : die();
   
-    $item->getSingleDetour();
+    $item->getLatestDetour();
     if($item->parcel_number != null){
         // create array
         $emp_arr = array(
