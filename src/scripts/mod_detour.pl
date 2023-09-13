@@ -1,18 +1,27 @@
 #!/usr/bin/perl
 
 use warnings;
+use strict;
 use HTTP::Request;
 use HTTP::Headers;
 use LWP::UserAgent;
 use JSON::PP;
 use input;
 
-if (@ARGV < 1) {
+if ($ARGV[0] eq 'start') {
+    print "Starting the system...\n";
+} elsif ($ARGV[0] eq 'stop') {
+    print "Stopping the system...\n";
+} else {
+    print "Unknown command\n";
+}
+
+if (@ARGV != 1) {
     print "Usage: $0 <run|test> [unitnum1,unitnum2,...] \n";
     exit;
 }
 
-die;
+#die;
 
 my $ua = LWP::UserAgent->new(ssl_opts => { SSL_verify_mode => 'SSL_VERIFY_NONE' });
 
