@@ -30,7 +30,9 @@
                 <div class="col-md-12">
                     <div class="mt-5 mb-3 clearfix">
                         <h2 class="pull-left">Detour Details Debug</h2>
-                        <a href="create.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Add detour manually</a>
+                        <!--
+                            <a href="create.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Add detour manually</a>
+                        -->
                     </div>
                     <?php
                     // Include config file
