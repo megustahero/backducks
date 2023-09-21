@@ -1,4 +1,6 @@
 <?php
+
+    error_reporting(0);
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
     header("Access-Control-Allow-Methods: POST");
@@ -10,15 +12,27 @@
 
     $database = new Database();
     $db = $database->getConnection();
-    $item = new Detour($db);
-    $data = json_decode(file_get_contents("php://input"));
-    $item->parcel_number = $data->parcel_number;
-    $item->type = $data->type;
-    $item->delivery_day = $data->delivery_day;
-    $item->insert_date = date('Y-m-d H:i:s');
-        
-    if($item->createDetour()){
-        echo 'Detour created successfully.';
-    } else{
-        echo 'Detour could not be created.';
+    $detObj = new Detour($db);
+
+    $detourTable = 'detour';
+
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+    if ($requestMethod == 'POST') {
+        $formData = json_decode(file_get_contents("php://input"), true);
+        if (empty($formData)) {
+            $insertDetourRecord = $detObj->createDetour($detourTable, $_POST);
+        }else{
+            $insertDetourRecord = $detObj->createDetour($detourTable, $formData);
+        }
+        echo $insertDetourRecord;
+    } else {
+        $data = [
+            'status'  => 405,
+            'message' => $requestMethod . ' Method now allowed',
+        ];
+        header("HTTP/1.0 405 Method now allowed");
+        echo json_encode($data);
     }
+
+?>

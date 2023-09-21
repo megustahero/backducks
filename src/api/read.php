@@ -2,39 +2,36 @@
 
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
+    header("Access-Control-Allow-Methods: GET");
+    header("Access-Control-Max-Age: 3600");
+    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
     include_once '../config/database.php';
     include_once '../class/detours.php';
 
     $database = new Database();
     $db = $database->getConnection();
-    $items = new Detour($db);
-    $stmt = $items->getDetours();
-    $itemCount = $stmt->rowCount();
+    $detObj = new Detour($db);
 
-    echo json_encode($itemCount);
+    $detourTable = 'detour';
 
-    if($itemCount > 0){
-        $detourArr = array();
-        $detourArr["body"] = array();
-        $detourArr["itemCount"] = $itemCount;
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-            extract($row);
-            $e = array(
-                "id" => $id,
-                "parcel_number" => $parcel_number,
-                "type" => $type,
-                "delivery_day" => $delivery_day,
-                "insert_date" => $insert_date
-            );
-            array_push($detourArr["body"], $e);
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+    if ($requestMethod == 'GET') {
+        if (isset($_GET['parcel_number'])) {
+            $parcel_number = $_GET['parcel_number'];
+            $getDetourDetails = $detObj->getLastDetour($detourTable, $parcel_number);
+        } else {
+            $getDetourDetails = $detObj->getDetours($detourTable);
         }
-        echo json_encode($detourArr);
+        echo $getDetourDetails;
+    } else {
+        $data = [
+            'status'  => 405,
+            'message' => $requestMethod. ' Method not allowed',
+        ];
+        header("HTTP/1.0 405 Method not allowed");
+        echo json_encode($data);
     }
-    else{
-        http_response_code(404);
-        echo json_encode(
-            array("message" => "No detour found.")
-        );
-    }
+
 ?>
