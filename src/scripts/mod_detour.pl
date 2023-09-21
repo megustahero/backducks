@@ -10,7 +10,7 @@ use JSON;
 
     # in case you are dumb
     if (@ARGV < 1) {
-        print "Usage: $0 <create|update|delete> parcel_number type delivery_day\n";
+        print "Usage: $0 <create|update|delete> parcel_number type delivery_day <debug>\n";
         exit;
     }
 
@@ -43,7 +43,9 @@ use JSON;
     }
 
     # debug
-    print "API endpoint: " . $url . "\n";
+    if (defined $ARGV[4] && $ARGV[4] eq "debug") { 
+        print "API endpoint: " . $url . "\n";
+    }
 
     # POST request body assembly
     my $req = HTTP::Request->new( $meth, $url );
@@ -51,19 +53,22 @@ use JSON;
     $req->content( encode_json(\%json) );
 
     # debug
-    print "Sent JSON object: " . encode_json(\%json) . "\n";
-
+    
+    if (defined $ARGV[4] && $ARGV[4] eq "debug") { 
+        print "Sent JSON object: " . encode_json(\%json) . "\n";
+    }
+        
     # execute the request with LWP
     my $lwp = LWP::UserAgent->new;
     my $res = $lwp->request( $req );
 
     # response print
     if ($res->is_success) {
-        print "HTTP POST success code: ", $res->code, "\n";
-        print "HTTP POST success message: ", $res->message, "\n";
-        print "Received API reply: ", $res->decoded_content, "\n";
+        print "HTTP POST success code & message: ", $res->code, " ", $res->message, "\n";
+        if (defined $ARGV[4] && $ARGV[4] eq "debug") { 
+            print "Received API reply: ", $res->decoded_content, "\n";
+        }
     }
     else {
-        print "HTTP POST error code: ", $res->code, "\n";
-        print "HTTP POST error message: ", $res->message, "\n";
+        print "HTTP POST error code & message: ", $res->code, " ", $res->message, "\n";
     }
