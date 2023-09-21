@@ -8,7 +8,7 @@
         }
 
         public function getDetours() {
-            $sql = "SELECT * FROM detour";
+            $sql = "SELECT * FROM detour ORDER BY id ASC";
             return $this->db->query($sql);
         }
     }

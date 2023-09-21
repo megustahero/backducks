@@ -20,7 +20,7 @@
 
     if ($requestMethod == 'PUT') {
         $formData = json_decode(file_get_contents("php://input"), true);
-        $updateDetourRecord = $detObj->updateDetour($detourTable, $formData, $_GET);
+        $updateDetourRecord = $detObj->updateDetour($detourTable, $formData);
         echo $updateDetourRecord;
     } else {
         $data = [

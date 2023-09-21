@@ -62,7 +62,7 @@
         // READ a detour
         public function getLastDetour($table, $parcel_number){
             try {
-                if (is_valid_numeric_value($parcel_number)) {
+                if (is_valid_parcelno($parcel_number)) {
                     $query = "SELECT * FROM $table WHERE parcel_number = '$parcel_number' ORDER BY insert_date DESC LIMIT 1";
 
                     $result = $this->conn->query($query);
@@ -106,14 +106,17 @@
                 $type          = htmlspecialchars(strip_tags($post['type']));
                 $delivery_day  = htmlspecialchars(strip_tags($post['delivery_day']));
 
-                if (is_valid_numeric_value($parcel_number) && is_numeric($type) && is_valid_date($delivery_day)) {
+                if (is_valid_parcelno($parcel_number) && is_numeric($type) && is_valid_date($delivery_day)) {
 
                     $query = "INSERT INTO $table (parcel_number, type, delivery_day, insert_date)
-                                VALUES ('$parcel_number', '$type', '$delivery_day', now())";
+                        VALUES (:parcel_number, :type, :delivery_day, now())";
                     
-                    $result = $this->conn->prepare($query);
-                  
-                    if ($result->execute()) {
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindParam(':parcel_number', $parcel_number);
+                    $stmt->bindParam(':type', $type);
+                    $stmt->bindParam(':delivery_day', $delivery_day);
+                                      
+                    if ($stmt->execute()) {
                         $data = [
                             'status'  => 200,
                             'message' => 'Detour created successfully ',
@@ -145,51 +148,78 @@
 
         }
 
-        // UPDATE a detour
-        public function updateDetour($table, $post, $getId){
-            
+        public function updateDetour($table, $post){
+
             if (!empty($post)) {
-                
-                if (isset($getId) && !empty($getId)) {
-
-                    $id = $getId['id'];
-
-                    $parcel_number  = $post['parcel_number'];
-                    $type           = $post['type'];
-                    $delivery_day   = $post['delivery_day'];
-                    
-                    $query = "UPDATE $table SET parcel_number='$parcel_number', type='$type', delivery_day='$delivery_day', insert_date = now() WHERE id='$id'";
-
-                    $result = $this->conn->prepare($query);
-
-                    if ($result->execute()) {
-                        $data = [
-                            'status'  => 200,
-                            'message' => 'Detour updated successfully',
-                        ];
-                        header("HTTP/1.0 200 success");
+        
+                $id            = htmlspecialchars(strip_tags($post['id']));
+                $parcel_number = htmlspecialchars(strip_tags($post['parcel_number']));
+                $type          = htmlspecialchars(strip_tags($post['type']));
+                $delivery_day  = htmlspecialchars(strip_tags($post['delivery_day']));
+        
+                if (is_numeric($id) && is_valid_parcelno($parcel_number) && is_numeric($type) && is_valid_date($delivery_day)) {
+        
+                    // Check if the record with the given ID exists
+                    $check_query = "SELECT id FROM $table WHERE id=?";
+                    $check_result = $this->conn->prepare($check_query);
+                    $check_result->bindParam(1, $id, PDO::PARAM_INT);
+                    $check_result->execute();
+        
+                    if ($check_result->rowCount() > 0) {
+        
+                        // Use prepared statement to prevent SQL injection
+                        $query = "UPDATE $table SET parcel_number=?, type=?, delivery_day=?, insert_date=now() WHERE id=?";
+                        $result = $this->conn->prepare($query);
+        
+                        // Bind parameters
+                        $result->bindParam(1, $parcel_number, PDO::PARAM_STR);
+                        $result->bindParam(2, $type, PDO::PARAM_INT);
+                        $result->bindParam(3, $delivery_day, PDO::PARAM_STR);
+                        $result->bindParam(4, $id, PDO::PARAM_INT);
+        
+                        if ($result->execute()) {
+                            $data = [
+                                'status'  => 200,
+                                'message' => 'Detour updated successfully',
+                            ];
+                            header("HTTP/1.0 200 success");
+                        } else {
+                            $data = [
+                                'status'  => 404,
+                                'message' => 'Detour not updated',
+                            ];
+                            header("HTTP/1.0 404 Detour not updated");
+                        }
+        
                     } else {
                         $data = [
                             'status'  => 404,
-                            'message' => 'Detour not updated',
+                            'message' => 'Detour with the given ID not found',
                         ];
-                        header("HTTP/1.0 404 Detour not updated");
+                        header("HTTP/1.0 404 Not found");
                     }
+        
                 } else {
                     $data = [
                         'status'  => 404,
-                        'message' => 'Detour id is not found',
+                        'message' => 'Detour id or data is not valid',
                     ];
                     header("HTTP/1.0 404 Not found");
                 }
             }
-
+        
+            // Debugging messages
+            #error_log("Detour Update Request: " . json_encode($post));
+            #error_log("Detour Update Response: " . json_encode($data));
+        
+            return json_encode($data);
         }
+        
 
         // DELETE a detour
         public function deleteDetour($table, $parcel_number) {
             try {
-                if (is_valid_numeric_value($parcel_number)) {
+                if (is_valid_parcelno($parcel_number)) {
                     $query = "DELETE FROM $table WHERE parcel_number = '$parcel_number'";
                     $result = $this->conn->prepare($query);
                     if ($result->execute()) {
@@ -226,7 +256,7 @@
         return $dateTime && $dateTime->format($format) === $date;
     }
 
-    function is_valid_numeric_value($input) {
+    function is_valid_parcelno($input) {
         // Check if the input is numeric and has exactly 14 characters
         return preg_match('/^\d{14}$/', $input) === 1;
     }
