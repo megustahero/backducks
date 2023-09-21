@@ -25,13 +25,14 @@
             $query = "SELECT id, parcel_number, type, delivery_day, insert_date 
                         FROM " . $table . " ORDER BY insert_date DESC";
             
-            $result = $this->conn->query($query); //prepare($query);
+            $result = $this->conn->prepare($query);
             
-            if ($result) {
+            if ($result->execute()) {
+                $rowCount = $result->rowCount();
 
-                if ($result->num_rows > 0) {
+                if ($rowCount > 0) {
                     
-                    $rows = $result->fetch_all(MYSQLI_ASSOC);
+                    $rows = $result->fetchAll(PDO::FETCH_ASSOC);
 
                     $data = [
                         'status'  => 200,
@@ -58,6 +59,44 @@
             
         }
         
+        // READ a detour
+        public function getLastDetour($table, $parcel_number){
+            try {
+                if (is_valid_numeric_value($parcel_number)) {
+                    $query = "SELECT * FROM $table WHERE parcel_number = '$parcel_number' ORDER BY insert_date DESC LIMIT 1";
+
+                    $result = $this->conn->query($query);
+                    
+                    if ($result->rowCount() > 0) {
+                        $row = $result->fetchAll(PDO::FETCH_ASSOC);
+                        $data = [
+                            'status'  => 200,
+                            'message' => 'Single detour fetch successfull',
+                            'data'    => $row,
+                        ];
+                        header("HTTP/1.0 200 OK");
+                    } else {
+                        $data = [
+                            'status'  => 404,
+                            'message' => 'Detour not found',
+                        ];
+                        header("HTTP/1.0 404 Detour not found");
+                    }
+                }else{
+                    $data = [
+                        'status'  => 404,
+                        'message' => 'Valid detour parcel number is required',
+                    ];
+                    header("HTTP/1.0 404 Valid detour parcel number is required");
+                }
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
+
+            return json_encode($data);
+
+        }
+
         // CREATE a detour, alias POST method
         public function createDetour($table, $post) {
             
@@ -67,17 +106,17 @@
                 $type          = htmlspecialchars(strip_tags($post['type']));
                 $delivery_day  = htmlspecialchars(strip_tags($post['delivery_day']));
 
-                if (!empty($parcel_number) && !empty($type) && !empty($delivery_day)) {
+                if (is_valid_numeric_value($parcel_number) && is_numeric($type) && is_valid_date($delivery_day)) {
 
                     $query = "INSERT INTO $table (parcel_number, type, delivery_day, insert_date)
                                 VALUES ('$parcel_number', '$type', '$delivery_day', now())";
                     
-                    $result = $this->conn->query($query);
-                    
-                    if ($result) {
+                    $result = $this->conn->prepare($query);
+                  
+                    if ($result->execute()) {
                         $data = [
                             'status'  => 200,
-                            'message' => 'Detour created successfully',
+                            'message' => 'Detour created successfully ',
                         ];
                         header("HTTP/1.0 200 Created");
                     } else {
@@ -106,40 +145,6 @@
 
         }
 
-        // READ a detour
-        public function getLastDetour($table, $parcel_number){
-            try {
-                if (!empty($parcel_number)) {
-                    $stmt = "SELECT * FROM $table WHERE parcel_number = '$parcel_number' ORDER BY insert_date DESC LIMIT 1";
-                    $result = $this->conn->query($stmt);
-                    if ($result->num_rows > 0) {
-                        $row = $result->fetch_all(MYSQLI_ASSOC);
-                        $data = [
-                            'status'  => 200,
-                            'message' => 'Single detour fetch successfull',
-                            'data'    => $row,
-                        ];
-                        header("HTTP/1.0 200 OK");
-                    } else {
-                        $data = [
-                            'status'  => 404,
-                            'message' => 'Detour not found',
-                        ];
-                        header("HTTP/1.0 404 Detour not found");
-                    }
-                }else{
-                    $data = [
-                        'status'  => 404,
-                        'message' => 'Detour parcel number is required',
-                    ];
-                    header("HTTP/1.0 404 Detour parcel number is required");
-                }
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
-            }
-
-        }
-
         // UPDATE a detour
         public function updateDetour($table, $post, $getId){
             
@@ -155,9 +160,9 @@
                     
                     $query = "UPDATE $table SET parcel_number='$parcel_number', type='$type', delivery_day='$delivery_day', insert_date = now() WHERE id='$id'";
 
-                    $result = $this->conn->query($query);
+                    $result = $this->conn->prepare($query);
 
-                    if ($result) {
+                    if ($result->execute()) {
                         $data = [
                             'status'  => 200,
                             'message' => 'Detour updated successfully',
@@ -184,10 +189,10 @@
         // DELETE a detour
         public function deleteDetour($table, $parcel_number) {
             try {
-                if (!empty($parcel_number)) {
+                if (is_valid_numeric_value($parcel_number)) {
                     $query = "DELETE FROM $table WHERE parcel_number = '$parcel_number'";
-                    $result = $this->conn->query($query);
-                    if ($result) {
+                    $result = $this->conn->prepare($query);
+                    if ($result->execute()) {
                         $data = [
                             'status'  => 200,
                             'message' => 'Detour deleted successfully',
@@ -213,4 +218,15 @@
             }
 
         }
+
+    }
+
+    function is_valid_date($date, $format = 'Y-m-d') {
+        $dateTime = DateTime::createFromFormat($format, $date);
+        return $dateTime && $dateTime->format($format) === $date;
+    }
+
+    function is_valid_numeric_value($input) {
+        // Check if the input is numeric and has exactly 14 characters
+        return preg_match('/^\d{14}$/', $input) === 1;
     }

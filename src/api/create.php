@@ -21,9 +21,9 @@
     if ($requestMethod == 'POST') {
         $formData = json_decode(file_get_contents("php://input"), true);
         if (empty($formData)) {
-            $insertDetourRecord = $empObj->createDetour($detourTable, $_POST);
+            $insertDetourRecord = $detObj->createDetour($detourTable, $_POST);
         }else{
-            $insertDetourRecord = $empObj->createDetour($detourTable, $formData);
+            $insertDetourRecord = $detObj->createDetour($detourTable, $formData);
         }
         echo $insertDetourRecord;
     } else {
