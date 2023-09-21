@@ -1,6 +1,4 @@
-# backducks
-
-# API Documentation
+# backducks API Documentation
 
 ## Introduction
 
