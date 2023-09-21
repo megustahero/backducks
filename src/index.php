@@ -50,7 +50,7 @@
                                         echo "<th>Detour type</th>";
                                         echo "<th>Delivery day</th>";
                                         echo "<th>Insert date</th>";
-                                        echo "<th>Action</th>";
+                                        //echo "<th>Action</th>";
                                     echo "</tr>";
                                 echo "</thead>";
                                 echo "<tbody>";
@@ -61,11 +61,11 @@
                                         echo "<td>" . $row['type'] . "</td>";
                                         echo "<td>" . $row['delivery_day'] . "</td>";
                                         echo "<td>" . $row['insert_date'] . "</td>";
-                                        echo "<td>";
-                                            echo '<a href="/api/read.php?id='. $row['id'] .'" class="mr-3" title="View Record" data-toggle="tooltip"><span class="fa fa-eye"></span></a>';
-                                            echo '<a href="update.php?id='. $row['id'] .'" class="mr-3" title="Update Record" data-toggle="tooltip"><span class="fa fa-pencil"></span></a>';
-                                            echo '<a href="delete.php?id='. $row['id'] .'" title="Delete Record" data-toggle="tooltip"><span class="fa fa-trash"></span></a>';
-                                        echo "</td>";
+                                        //    echo "<td>";
+                                        //    echo '<a href="/api/read.php?id='. $row['id'] .'" class="mr-3" title="View Record" data-toggle="tooltip"><span class="fa fa-eye"></span></a>';
+                                        //    echo '<a href="update.php?id='. $row['id'] .'" class="mr-3" title="Update Record" data-toggle="tooltip"><span class="fa fa-pencil"></span></a>';
+                                        //   echo '<a href="delete.php?id='. $row['id'] .'" title="Delete Record" data-toggle="tooltip"><span class="fa fa-trash"></span></a>';
+                                        //echo "</td>";
                                     echo "</tr>";
                                 }
                                 echo "</tbody>";                            
