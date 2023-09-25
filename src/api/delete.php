@@ -18,10 +18,27 @@
     $requestMethod = $_SERVER['REQUEST_METHOD'];    
     
     if ($requestMethod == 'DELETE') {
+        $detParcelNumber = null;
         if (isset($_GET['parcel_number'])) {
             $detParcelNumber = $_GET['parcel_number'];
+        } else {
+            $inputJSON = file_get_contents('php://input');
+            $input = json_decode($inputJSON, TRUE);
+            if (isset($input['parcel_number'])) {
+                $detParcelNumber = $input['parcel_number'];
+            }
+        }
+
+        if (!is_null($detParcelNumber)) {
             $deleteDetour = $detObj->deleteDetour($detourTable, $detParcelNumber);
             echo $deleteDetour;
+        } else {
+            $data = [
+                'status' => 400,
+                'message' => 'Invalid parcel number',
+            ];
+            header("HTTP/1.0 400 Bad Request");
+            echo json_encode($data);
         }
     } else {
         $data = [
